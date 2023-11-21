@@ -46,7 +46,7 @@ class CategoryController extends Controller
     // direct category editPage
     public function editPage($id)
     {
-        $category = Category::where("id", $id)->first();
+        $category = Category::where("id", $id)->firstOrFail();
         return view("admin.category.edit", ['category'=>$category]);
     }
 

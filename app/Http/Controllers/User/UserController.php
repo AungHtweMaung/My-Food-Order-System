@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ class UserController extends Controller
         $products = Product::orderby('created_at', 'asc')->get();
         $categories = Category::all();
         $cart = Cart::where('user_id', Auth::user()->id)->get();
+        // dd($cart->toArray());
         return view('user.main.home', compact('products', 'categories', 'cart'));
     }
 
@@ -30,7 +32,8 @@ class UserController extends Controller
     {
         $products = Product::where('category_id', $id)->orderby('created_at', 'asc')->get();
         $categories = Category::all();
-        return view('user.home', compact('products', 'categories'));
+        $cart = Cart::where('user_id', Auth::user()->id)->get();
+        return view('user.main.home', compact('products', 'categories', 'cart'));
     }
 
     // product details
@@ -39,7 +42,7 @@ class UserController extends Controller
         $product = Product::where('id', $id)->firstOrFail();
         $productList = Product::all();
         // dd($product);
-        return view('user.layouts.productDetails', compact('product', 'productList'));
+        return view('user.main.productDetails', compact('product', 'productList'));
     }
 
     // cart list
@@ -47,13 +50,14 @@ class UserController extends Controller
     {
         $cartList = Cart::leftjoin(
             'products',
-            'products.id',
-            'carts.product_id'
+            'carts.product_id',
+            'products.id'
         )
             ->select(
                 'carts.*',
                 'products.name as product_name',
-                'products.price as product_price'
+                'products.price as product_price',
+                'products.image as product_image'
             )
             ->where('carts.user_id', Auth::user()->id)->get();
 
@@ -120,6 +124,15 @@ class UserController extends Controller
         }
         User::where('id', $id)->update($data);
         return redirect()->route('user#profileDetail')->with(['accountUpdateSuccess' => "Admin Account Updated Successfully"]);
+    }
+
+    // history
+    public function history()
+    {
+        // show order history of the current user
+        $order = Order::where('user_id', Auth::user()->id)->orderby('created_at', 'desc')->paginate(5);
+        // dd($order->toArray());
+        return view('user.main.history', compact('order'));
     }
 
     // get User profile data

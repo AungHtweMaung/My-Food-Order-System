@@ -21,9 +21,6 @@
                                     <i class="zmdi zmdi-plus"></i>add category
                                 </button>
                             </a>
-                            <button class="au-btn au-btn-icon au-btn--green au-btn--small">
-                                CSV download
-                            </button>
                         </div>
                     </div>
                     @if (session('createMessage'))

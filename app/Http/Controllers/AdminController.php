@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -13,47 +15,118 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
 
+    // user contact messages
+    public function contactList()
+    {
+        $userMessages = DB::table('contacts')->get();
+        return view('admin.contact.contactList', compact('userMessages'));
+    }
+
+    // show contact message
+    public function contactMessage($id)
+    {
+        $message = DB::table('contacts')->where('id', $id)->first();
+        return view('admin.contact.message', compact('message'));
+    }
+
     // direct admin list page
     public function adminList()
     {
+        // $adminRole = request('adminRole');
+        // $admins = User::when(request('searchKey'), function ($query) {
+        //     $query->orWhere('name', 'like', '%' . request('searchKey') . '%')
+        //     ->orWhere('email', 'like', '%' . request('searchKey') . '%')
+        //     ->orWhere('address', 'like', '%' . request('searchKey') . '%')
+        //         ->where('role', 'admin');
+        // })
+        //     ->where('role', 'admin')
+        //     ->orderby('created_at', 'asc')
+        //     ->paginate(2);
+
         $admins = User::when(request('searchKey'), function ($query) {
-            $query->orWhere('name', 'like', '%'.request('searchKey'). '%')
-            ->orWhere('email', 'like', '%' . request('searchKey') . '%')
-            ->orWhere('address', 'like', '%' . request('searchKey') . '%');
+            return $query->where('role', 'admin')
+                    ->where(function ($q) {
+                        $q->orwhere('email', 'like', '%' . request('searchKey') . '%')
+                        ->orwhere('address', 'like', '%' . request('searchKey') . '%');
+                });
         })
             ->where('role', 'admin')
-            ->orderby('created_at', 'asc')
-            ->paginate(3);
-        // dd($admins->toArray());
+            ->orderby('created_at', 'desc')
+            ->paginate(2);
+
+        // dd($admins);
+
         $admins->appends(request()->query());
         return view('admin.account.list', compact('admins'));
     }
+
+    // direct normal user list
+    public function normalUserList()
+    {
+        // $searchKey = $request->searchKey
+        // search key ရှိလို့စစ်တဲ့အခါ orwhere တိုက်ရိုက်သုံးထားရင် မဆိုင်တဲ့ admin role တွေပါပြမှာ
+        // where ထဲမှာ function ဘာလို့ထပ်ရေးလည်းဆိုတော့ where သည် and operator ကို သုံးထားတဲ့ဖြစ်တဲ့အတွက်
+        // user သည် normal user , searchKey လည်း ရှိတယ်ဆိုမှ result တွေပြမှာ
+        // တစ်ခုခုမမှန်ဘူးဆို result , record တွေပြမှာမဟုတ်ဘူး
+        $normalUsers = User::when(request('searchKey'), function ($query) {
+            // $searchKey = $request->searchKey;
+            $query->where('role', 'user')
+                ->where(function ($q) {
+                    $q->orwhere('name', 'like', '%' . request('searchKey') . '%')
+                        ->orwhere('address', 'like', '%' . request('searchKey') . '%');
+                });
+        })
+            ->where('role', 'user')
+            ->orderby('created_at', 'desc')
+            ->paginate(2);
+
+        $normalUsers->appends(request()->query());
+        return view('admin.account.userList', compact('normalUsers'));
+    }
+
+    // role change for normal user to admin
+    public function userRoleChange(Request $request)
+    {
+        User::where('id', $request->userId)->where('role', 'user')
+            ->update([
+                'role' => $request->role
+            ]);
+    }
+
 
     // delete admin account
     public function delete($id)
     {
         User::where('id', $id)->delete();
-        return back()->with(['deleteMessage'=>'Admin Account Deleted...']);
+        return back()->with(['deleteMessage' => 'Admin Account Deleted...']);
         // dd('delete');
     }
 
+
+    public function deleteNormalUser($id)
+    {
+        User::where('id', $id)->delete();
+        $normalUsers = User::paginate(2);
+
+        return view('admin.account.userList', compact('normalUsers'));
+    }
+
     // direct admin role change page
-    public function roleChangePage ($id) {
-        $account = User::where('id', $id)->firstOrFail();
-        return view('admin.account.roleChange', compact('account'));
+    // public function roleChangePage ($id) {
+    //     $account = User::where('id', $id)->firstOrFail();
+    //     return view('admin.account.roleChange', compact('account'));
+    // }
+
+    // user role change
+    public function roleChange(Request $request)
+    {
+        logger($request->userId);
+        User::where('id', $request->userId)
+            ->update([
+                'role' => $request->role
+            ]);
+        return response()->json(['status' => 'success'], 200);
     }
-
-    // role change
-    public function change($id, Request $request) {
-        $data = [
-            'role' => $request->role
-        ];
-
-        User::where('id', $id)->update($data);
-        return redirect()->route('admin#list');
-
-    }
-
 
     // direct profile detail page
     public function detail()

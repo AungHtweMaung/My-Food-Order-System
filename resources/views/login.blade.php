@@ -16,7 +16,7 @@
             </div>
             <div class="form-group">
                 <label>Email Address</label>
-                <input class="au-input au-input--full" type="email" name="email" placeholder="Email">
+                <input class="au-input au-input--full" type="text" name="email" placeholder="Email">
                 @error('email')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror

@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ratings', function (Blueprint $table) {
+        Schema::create('order_lists', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
             $table->integer('product_id');
-            $table->integer('rating_count');
-            $table->longText('message')->nullable();
+            $table->integer('qty');
+            $table->integer('total');
+            $table->string('order_code');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ratings');
+        Schema::dropIfExists('order_lists');
     }
 };

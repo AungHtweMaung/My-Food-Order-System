@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'Admin List')
+@section('title', 'User List')
 
 @section('content')
     <div class="main-content">
@@ -11,7 +11,7 @@
                     <div class="table-data__tool">
                         <div class="table-data__tool-left">
                             <div class="overview-wrap">
-                                <h2 class="title-1">Admin List</h2>
+                                <h2 class="title-1">User List</h2>
 
                             </div>
                         </div>
@@ -26,47 +26,7 @@
                             </button>
                         </div> --}}
                     </div>
-                    @if (session('createMessage'))
-                        <div class="row">
-                            <div class="col-md-4 offset-8">
 
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <strong>{{ session('createMessage') }}</strong>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if (session('deleteMessage'))
-                        <div class="row">
-                            <div class="col-md-4 offset-8">
-
-                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    <strong>{{ session('deleteMessage') }}</strong>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if (session('updateMessage'))
-                        <div class="row">
-                            <div class="col-md-4 offset-8">
-
-                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    <strong>{{ session('updateMessage') }}</strong>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
 
                     <div class="row d-flex justify-content-between">
                         @if (request('searchKey'))
@@ -78,8 +38,7 @@
                         @endif
                         <div
                             class="col-12 col-sm-7 col-md-5 col-xl-3 @if (request('searchKey')) offset-0 @else offset-xl-9 offset-md-7 offset-sm-5 @endif">
-                            <form action="{{ route('admin#list') }}" method="GET">
-                                <input type="hidden" name="adminRole" value="admin">
+                            <form action="{{ route('admin#normalUserList') }}" method="GET">
                                 <div class="d-flex">
                                     <input type="text" class="form-control" name="searchKey"
                                         value="{{ request('searchKey') }}" placeholder="Search...">
@@ -94,7 +53,7 @@
                     <div class="row justify-content-end my-2">
                         <div class="col-5 col-sm-3 col-md-2">
                             <div class="bg-white text-center p-2">
-                                <h3><i class="fas fa-database mr-3"></i> {{ $admins->total() }}</h3>
+                                <h3><i class="fas fa-database mr-3"></i>{{ $normalUsers->total() }}</h3>
                             </div>
                         </div>
                     </div>
@@ -111,17 +70,18 @@
                                     <th>Phone</th>
                                     <th>Address</th>
                                     <th>Role</th>
+
                                 </tr>
                             </thead>
                             <tbody>
 
-                                @foreach ($admins as $admin)
+                                @foreach ($normalUsers as $user)
                                     <tr class="tr-shadow">
-                                        <input type="hidden" value="{{ $admin->id }}" id="userId">
+                                        <input type="hidden" value="{{ $user->id }}" id="userId">
 
                                         <td class="col-2">
-                                            @if ($admin->image == null)
-                                                @if ($admin->gender == 'male')
+                                            @if ($user->image == null)
+                                                @if ($user->gender == 'male')
                                                     <img class="img-thumbnail" src="{{ asset('image/default_male.png') }}"
                                                         alt="">
                                                 @else
@@ -130,26 +90,31 @@
                                                 @endif
                                             @else
                                                 <img class="img-thumbnail"
-                                                    src="{{ asset('storage/profileImage/' . $admin->image) }}"
+                                                    src="{{ asset('storage/profileImage/' . $user->image) }}"
                                                     alt="">
                                             @endif
                                         </td>
-                                        <td>{{ $admin->name }}</td>
-                                        <td>{{ $admin->email }}</td>
-                                        <td>{{ $admin->gender }}</td>
-                                        <td>{{ $admin->phone }}</td>
-                                        <td>{{ $admin->address }}</td>
+                                        <td>{{ $user->name }}</td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>{{ $user->gender }}</td>
+                                        <td>{{ $user->phone }}</td>
+                                        <td>{{ $user->address }}</td>
                                         <td>
-                                            @if (Auth::user()->id == $admin->id)
+                                            @if (Auth::user()->id == $user->id)
                                             @else
-                                                <select class="form-control roleChange" >
-                                                    <option value="user"
-                                                        @if ($admin->role == 'user') selected @endif>user</option>
-                                                    <option value="admin"
-                                                        @if ($admin->role == 'admin') selected @endif>admin</option>
+                                                <div class="d-flex">
+                                                    <select class="form-control roleChange">
+                                                        <option value="user"
+                                                            @if ($user->role == 'user') selected @endif>
+                                                            user</option>
+                                                        <option value="admin"
+                                                            @if ($user->role == 'admin') selected @endif>
+                                                            admin</option>
 
-                                                </select>
-
+                                                    </select>
+                                                    <a href="{{ route('admin#deleteNormalUser', $user->id) }}"
+                                                        class="btn btn-dark ml-2"><i class="fa-solid fa-trash"></i></a>
+                                                </div>
                                             @endif
                                         </td>
 
@@ -164,7 +129,7 @@
                         {{-- request()->query() သည် every pagination link တိုင်းအတွက်
                                 query result ကို append လုပ်ပေးသွားတာ
                             --}}
-                        {{ $admins->links() }}
+                        {{ $normalUsers->links() }}
                     </div>
 
 
@@ -212,10 +177,10 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '/admin/ajax/admin/roleChange',
+                    url: '/admin/ajax/user/roleChange',
                     data: {
                         'role': $role,
-                        'userId': $userId,
+                        'userId': $userId
                     },
                     dataType: 'json',
                     success: function(response) {

@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'CategoryList')
+@section('title', 'Products')
 
 @section('content')
     <div class="main-content">
@@ -21,9 +21,7 @@
                                     <i class="zmdi zmdi-plus"></i>add product
                                 </button>
                             </a>
-                            <button class="au-btn au-btn-icon au-btn--green au-btn--small">
-                                CSV download
-                            </button>
+
                         </div>
                     </div>
                     @if (session('createMessage'))
@@ -121,7 +119,7 @@
                                         <td class="col-2">{{ $p->name }}</td>
                                         <td class="col-2">{{ $p->price }}</td>
                                         <td class="col-2">{{ $p->category_name }}</td>
-                                        <td class="col-2">{{ $p->view_count }}</td>
+                                        <td class="col-2"><i class="fa-solid fa-eye mr-2"></i>{{ $p->view_count }}</td>
                                         <td class="col-2">
                                             <div class="table-data-feature d-flex justify-content-start ">
                                                 <a href="{{ route('product#detail', $p->id) }}">
@@ -145,12 +143,6 @@
                                                         <i class="zmdi zmdi-delete"></i>
                                                     </button>
                                                 </a>
-
-                                                {{-- <form id="deleteCategoryForm"
-                                                        action="{{ route('category#delete', $category->id) }}"
-                                                        method="get">
-
-                                                    </form> --}}
 
                                             </div>
                                         </td>

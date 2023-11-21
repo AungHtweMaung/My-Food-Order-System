@@ -12,6 +12,7 @@
                 <table class="table table-light table-borderless table-hover text-center mb-0" id="tableData">
                     <thead class="thead-dark">
                         <tr>
+                            <th></th>
                             <th>Products</th>
                             <th>Price</th>
                             <th>Quantity</th>
@@ -22,8 +23,15 @@
                     <tbody class="align-middle">
                         @foreach ($cartList as $c)
                             <tr>
+
                                 {{-- <input type="hidden" id="price" value="{{ $c->product_price }}"> --}}
-                                <td class="align-middle"><img src="" alt="" style="width: 50px;">
+                                <input type="hidden" name="cartId" id="cartId" value="{{ $c->id }}">
+                                <input type="hidden" name="userId" id="userId" value="{{ $c->user_id }}">
+                                <input type="hidden" name="productId" id="productId" value="{{ $c->product_id }}">
+
+                                <td><img src="{{ asset('storage/productImage/' . $c->product_image) }}" alt=""
+                                        style="width: 100px;"></td>
+                                <td class="align-middle">
                                     {{ $c->product_name }}</td>
                                 <td class="align-middle" id="price">{{ $c->product_price }} kyats</td>
                                 <td class="align-middle">
@@ -35,7 +43,7 @@
                                         </div>
                                         <input type="text" disabled
                                             class="form-control form-control-sm bg-secondary border-0 text-center"
-                                            value="{{ $c->qty }}" id="qty">
+                                            id="qty" value="{{ $c->qty }}" id="qty">
                                         <div class="input-group-btn">
                                             <button class="btn btn-sm btn-primary btn-plus">
                                                 <i class="fa fa-plus"></i>
@@ -72,7 +80,9 @@
                             <h5>Total</h5>
                             <h5 id="allTotalPrice">{{ $totalPrice + 3000 }} kyats</h5>
                         </div>
-                        <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Proceed To Checkout</button>
+                        <button class="btn btn-block btn-primary orderBtn font-weight-bold my-3 py-3">Proceed To
+                            Checkout</button>
+                        <button class="btn btn-block btn-danger clearCartBtn font-weight-bold my-3 py-3">Clear Cart</button>
                     </div>
                 </div>
             </div>
@@ -91,40 +101,112 @@
                 $parentNode = $(this).parents('tr');
                 // tr parent ကနေ သူ့ရဲ့ အတွင်းက ပေးထားတဲ့ id child  တွေကိုယူတာ
                 $price = $parentNode.find('#price').text().replace('kyats', '');
-
+                $productId = $parentNode.find('#productId').val(); // parentNode ကို this နဲ့ ဖမ်းထားပြီးသား
                 $qty = $parentNode.find('#qty').val();
                 $totalPrice = $price * $qty;
 
                 $parentNode.find('#totalPrice').html($totalPrice + " kyats");
 
-                summaryCalculation();
+                summayTotal();
 
+
+                // when btn plus or minus is clicked,  quantity ကို database ထဲမှာပါ လိုက်ပြောင်းစေချင်လို့
+                // product id နဲ့ qty ကို ajax နဲ့ ပို့ပြီး up to date ဖြစ်အောင်ရေးတာ
+                $.ajax({
+                    type: 'GET',
+                    url: '/user/ajax/update/product-qty',
+                    dataType: 'json',
+                    data: {
+                        'quantity': $qty,
+                        'productId': $productId,
+                    }
+                })
             })
-
 
             $('.btn-remove').click(function() {
                 $parentNode = $(this).parents('tr');
+                $productId = $parentNode.find('#productId').val();
+                $cartId = $parentNode.find('#cartId').val();
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/user/ajax/remove/cart-item',
+                    dataType: 'json',
+                    data: {
+                        'productId': $productId,
+                        'cartId': $cartId,
+                    },
+                })
                 $parentNode.remove();
 
-                summaryCalculation();
+
+                summayTotal();
+
             })
 
-            function summaryCalculation() {
-                $allTotalPrice = 0;
-                $subTotalPrice = 0;
 
-                // To change subtotal price and latest total price, Get each total price, when click btn plus or btn minus
+            function summayTotal() {
+                $totalPrice = 0;
+
+                // To change subtotal price and latest total price, Get each total price from parent element, when click btn plus or btn minus
                 $('#tableData tbody tr').each(function(index, record) {
-                    $subTotalPrice = $allTotalPrice += parseInt($(record).find('#totalPrice').text()
-                        .replace('kyats', ''));
+                    $totalPrice += parseInt($(record).find('#totalPrice').text().replace(' kyats', ''));
+                })
 
-                });
-
-                $('#subTotalPrice').html(`${$subTotalPrice} kyats`)
-
-                // $allTotalPrice += 3000;
-                $('#allTotalPrice').html(`${$allTotalPrice + 3000} kyats`);
+                $('#subTotalPrice').html($totalPrice + ' kyats');
+                $('#allTotalPrice').html(`${$totalPrice + 3000} kyats `)
             }
-        })
+
+
+            // order
+            $orderList = [];
+            $('.orderBtn').click(function() {
+                // order btn တခါနှိပ်ရင် သူ့ cardList ထဲက item အတွက် order code ကတူတူပဲ
+                $random = Math.floor(Math.random() * 10000001);
+
+                // table ထဲက record အားလုံးကို ယူပြီး array ထဲထည့်ပြီး ajax နဲ့ ပို့တာ
+                $('#tableData tbody tr').each(function(index, record) {
+
+                    $orderList.push({
+                        'userId': $(record).find('#userId').val(),
+                        'productId': $(record).find('#productId').val(),
+                        'qty': $(record).find('#qty').val(),
+                        'total': parseInt($(record).find('#totalPrice').text().replace(
+                            ' kyats', '')),
+                        'orderCode': 'POS' + $random
+                    })
+                })
+
+                // data ကို object type ပြောင်းပြီး ajax နဲ့ပို့တာ
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/user/ajax/order',
+                    data: Object.assign({}, $orderList),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 'success') {
+                            window.location.href = '/user/home'
+                        }
+                    }
+
+                })
+
+            })
+
+
+            // clear cart
+            $('.clearCartBtn').click(function() {
+                $('#tableData tbody tr').remove();
+                $('#subTotalPrice').html('0 kyats');
+                $('#allTotalPrice').html(`3000 kyats`)
+
+                $.ajax({
+                    type: 'GET',
+                    url: 'http://127.0.0.1:8000/user/ajax/clear/cart',
+                    dataType: 'json'
+                })
+            })
+        });
     </script>
 @endsection

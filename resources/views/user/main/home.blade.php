@@ -54,29 +54,17 @@
                                         {{ count($cart) }}
                                     </span>
                                 </a>
+                                <a href="{{ route('user#history') }}" type="button" class="btn btn-dark px-3 position-relative">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> History
+                                </a>
                             </div>
                             <div class="ml-2">
                                 <div class="btn-group">
-                                    {{-- <button type="button" class="btn btn-sm btn-light dropdown-toggle"
-                                    data-toggle="dropdown">Sorting</button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Ascending</a>
-                                    <a class="dropdown-item" href="#">Descending</a>
-                                </div> --}}
                                     <select name="sorting" id="sortingOption" class="form-control">
                                         <option value="asc">Ascending</option>
                                         <option value="desc">Descending</option>
                                     </select>
                                 </div>
-                                {{-- <div class="btn-group ml-2">
-                                <button type="button" class="btn btn-sm btn-light dropdown-toggle"
-                                    data-toggle="dropdown">Showing</button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">10</a>
-                                    <a class="dropdown-item" href="#">20</a>
-                                    <a class="dropdown-item" href="#">30</a>
-                                </div>
-                            </div> --}}
                             </div>
                         </div>
                     </div>
@@ -92,8 +80,6 @@
                                                         src="{{ asset('storage/productImage/' . $p->image) }}"
                                                         alt="">
                                                     <div class="product-action">
-                                                        <a class="btn btn-outline-dark btn-square" href=""><i
-                                                                class="fa fa-shopping-cart"></i></a>
                                                         <a class="btn btn-outline-dark btn-square"
                                                             href="{{ route('user#productDetails', $p->id) }}"><i
                                                                 class="fa fa-circle-info"></i></a>
@@ -141,7 +127,7 @@
                 // console.log($eventOption);
                 $.ajax({
                     type: 'get',
-                    url: 'http://127.0.0.1:8000/user/ajax/productList',
+                    url: '/user/ajax/productList',
                     data: {
                         'status': $eventOption
                     },
@@ -155,7 +141,7 @@
                                 <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
                                     <div class="product-item bg-light mb-4">
                                         <div class="product-img position-relative overflow-hidden">
-                                            <img class="img-fluid w-100" style="min-height: 220px"
+                                            <img class="img-fluid w-100" style="height: 220px"
                                                 src="{{ asset('storage/productImage/${response.products[i].image}') }}" alt="">
                                             <div class="product-action">
                                                 <a class="btn btn-outline-dark btn-square" href=""><i
