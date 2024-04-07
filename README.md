@@ -1,5 +1,6 @@
 Food Order System သည် Fronted and Backend နှစ်မျိူးစလုံး ပါတဲ့ web app အမျိူးအစား ဖြစ်သည်။ 
 Fronted ကို HTML, CSS, BOOTSTRAP, JS, JQUERY တို့ကို အသုံးပြုထားပြီး Built-in template အချိူ့ကို customize လုပ်ပြီး သုံးထားပါသည်။ 
+Backend ကို Php, Laravel, Database ကို MySql သုံးထားပါသည်။ 
 User panel နဲ့ Admin panel ပါဝင်သည်။ 
 
 User panel
