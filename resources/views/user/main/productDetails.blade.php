@@ -31,7 +31,7 @@
                             </div>
                             <input type="text" id="count" min="1" max="5" value="1" disabled
                                 class="form-control bg-secondary border-0 text-center">
-
+                                
                             <div class="input-group-btn">
                                 <button class="btn btn-primary btn-plus">
                                     <i class="fa fa-plus"></i>

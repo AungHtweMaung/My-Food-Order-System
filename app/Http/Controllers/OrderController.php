@@ -25,13 +25,17 @@ class OrderController extends Controller
     public function productList($orderCode)
     {
         $orderTotalPrice = Order::select('orders.total_price')
-                        ->where('order_code', $orderCode)->first();
+            ->where('order_code', $orderCode)->first();
 
         $order = OrderList::leftjoin('users', 'users.id', 'order_lists.user_id')
-                    ->leftjoin('products', 'products.id', 'order_lists.product_id')
-                    ->select('order_lists.*', 'users.name as user_name',
-                            'products.image as product_image', 'products.name as product_name')
-                    ->where('order_code', $orderCode)->get();
+            ->leftjoin('products', 'products.id', 'order_lists.product_id')
+            ->select(
+                'order_lists.*',
+                'users.name as user_name',
+                'products.image as product_image',
+                'products.name as product_name'
+            )
+            ->where('order_code', $orderCode)->get();
 
         // dd($order->toArray());
         return view('admin.order.productList', compact('order', 'orderTotalPrice'));
@@ -49,7 +53,6 @@ class OrderController extends Controller
                 ->select('orders.*', 'users.name as username')
                 ->orderby('created_at', 'desc')
                 ->get();
-
         }
 
         if ($request->orderStatus != null) {
@@ -58,7 +61,6 @@ class OrderController extends Controller
                 ->where('orders.status', $request->orderStatus)
                 ->orderby('created_at', 'desc')
                 ->get();
-
         }
 
         return view('admin.order.list', compact('order'));
