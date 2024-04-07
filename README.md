@@ -15,3 +15,4 @@ Admin panel
 Profile management
 Managing category, product, order and contact
 Managing Users such as changing role admin to user, user to admin.
+
