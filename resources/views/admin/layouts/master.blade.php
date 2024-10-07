@@ -174,7 +174,7 @@
                                             <i class="fas fa-key"></i>Change Password</a>
                                     </div>
                                 </div>
-                                <div class="account-dropdown__footer my-3">
+                                <div class="account-dropdown__footer my-3 text-center">
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="btn btn-dark w-75 p-2">

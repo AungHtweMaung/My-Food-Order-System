@@ -80,8 +80,7 @@
                             <h5>Total</h5>
                             <h5 id="allTotalPrice">{{ $totalPrice + 3000 }} kyats</h5>
                         </div>
-                        <button class="btn btn-block btn-primary orderBtn font-weight-bold my-3 py-3">Proceed To
-                            Checkout</button>
+                        <button class="btn btn-block btn-primary orderBtn font-weight-bold my-3 py-3">Order</button>
                         <button class="btn btn-block btn-danger clearCartBtn font-weight-bold my-3 py-3">Clear Cart</button>
                     </div>
                 </div>

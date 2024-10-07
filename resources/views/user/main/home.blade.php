@@ -1,5 +1,10 @@
 @extends('user.layouts.master')
 
+@section('title')
+    Home
+@endsection
+
+
 @section('content')
     <div class="container-fluid">
         <div class="row px-xl-5">
@@ -122,6 +127,9 @@
 @section('scriptSource')
     <script>
         $(document).ready(function() {
+            
+            
+            
             $('#sortingOption').change(function() {
                 $eventOption = $('#sortingOption').val();
                 // console.log($eventOption);
